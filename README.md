@@ -14,9 +14,16 @@ Since we're in 3D, as you may guess that a unique 15X15 (2D) array would be suff
 ![grid_675_base_A_layer_1 (1)](https://github.com/gbulbul/1d-CNN-concatenated-model/assets/79763247/c98c8b56-feec-4e28-9d52-5902e6a3ec12)
 Now, the idea we break down analzing local context in 3D turned into analyzing three 2D arrays. Then, we reduced the dimension from 2D to 1D and we ended up with a sequence of lenght 675 (3X15X15=675). By adding the total number of atoms found in the local context, we got 676.
 
-The way how we view 675-dimensional input can be given from different perspectives:\\
-From the geometric point of view: Since we work with RNA 3D %structures which are made up of atoms in which each atom is represented by three coordinates  (x, y, z). If we take 2D projections, one of these coordinates, z, should be removed, the coordinates of the atoms are reduced to 2 dimensions and the lost coordinate is compensated by 3 layers. Then, each 2D layer is projected onto 1D as sequence. Finally, 225 (15X15)-dimensional sequences in 1D from each layer is added to make 675 (15X15X3)-dimensional input in 1D.\\
-From the biological point of view: 675-dimensional vector includes the number of nearby atoms falling into that region. \
-From the statistical point of view:  675 different features or variables or predictors. \\
+The way how we view 675-dimensional input can be given from different perspectives:
+
+
+From the geometric point of view: Since we work with RNA 3D %structures which are made up of atoms in which each atom is represented by three coordinates  (x, y, z). If we take 2D projections, one of these coordinates, z, should be removed, the coordinates of the atoms are reduced to 2 dimensions and the lost coordinate is compensated by 3 layers. Then, each 2D layer is projected onto 1D as sequence. 
+Finally, 225 (15X15)-dimensional sequences in 1D from each layer is added to make 675 (15X15X3)-dimensional input in 1D.
+
+
+From the biological point of view: 675-dimensional vector includes the number of nearby atoms falling into that region. 
+
+
+From the statistical point of view:  675 different features or variables or predictors. 
 
 
