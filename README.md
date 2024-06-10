@@ -8,7 +8,7 @@ This program obtains 1D arrays as its numerical input and combines them with cat
 This figure shows what we mean by "local context of a specific nucleotide" in 3D. It contains nucleotide itself with neighboring nts where each nt is made up of multiple atoms.
 ![image002 (1)](https://github.com/gbulbul/1d-CNN-concatenated-model/assets/79763247/64ffa72d-5a56-4357-aa35-f0e6fed5034d)
 This figure shows what a machine could understand/see when it has the local context of a nucleotide. Now, in this format, we have 15X15 (2D) array which includes cells and numbers indicating the number of atoms falling into each cell.
-Since we're in 3D, as you may guess that a unique 15X15 (2D) array would be sufficient to represent full information. Instead, we ended up with three 2D arrays which are shown below. Each 2D array refers a layer: bottom, base, top where a base layer is where the nucleotide of interest itself belongs.
+Since we're in 3D, as you may guess that a unique 15X15 (2D) array would be sufficient to represent full information. Instead, we ended up with three 2D arrays which are shown below. Each 2D array refers a layer: bottom (-1), base (0), top (+1) where a base layer is where the nucleotide of interest itself belongs.
 ![grid_675_base_A_layer_-1 (1)](https://github.com/gbulbul/1d-CNN-concatenated-model/assets/79763247/30a5e5ed-5395-4198-89f9-236c6db09769)
 ![grid_675_base_A_layer_0 (1)](https://github.com/gbulbul/1d-CNN-concatenated-model/assets/79763247/041168ad-8c52-48e3-ba34-44457caa76b6)
 ![grid_675_base_A_layer_1 (1)](https://github.com/gbulbul/1d-CNN-concatenated-model/assets/79763247/c98c8b56-feec-4e28-9d52-5902e6a3ec12)
