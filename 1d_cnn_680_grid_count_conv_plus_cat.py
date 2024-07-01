@@ -7,10 +7,14 @@ Created on Mon Apr 24 12:01:22 2023
 """
 
 
-import ast
+
+
 import seaborn as sns
+import numpy as np
+import pandas as pd
 import tensorflow as tf
 import glob
+import ast
 import torch
 import torch.nn.functional as F
 from math import sqrt, exp, log, pi
@@ -18,11 +22,11 @@ import re
 import pickle
 import random
 from tensorflow.keras.wrappers.scikit_learn import KerasRegressor
-import pandas as pd
 import os
+import math
+import csv
+from datetime import datetime
 from torchview import draw_graph
-import numpy as np
-from torch.utils.data import Dataset
 import gzip
 from tensorflow.keras.utils import plot_model
 from pandas.api.types import is_numeric_dtype
@@ -30,129 +34,26 @@ from torch.utils.data import DataLoader, random_split###
 from numpy import loadtxt
 import matplotlib.pyplot as plt
 from scipy.stats import spearmanr
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split,GridSearchCV, KFold, cross_val_score
 from sklearn import metrics
-from sklearn.metrics import r2_score
 from tensorflow.keras import initializers
+from tensorflow.keras.initializers import GlorotNormal
 from sklearn.metrics import mean_squared_error, mean_absolute_error,r2_score
-from sklearn.model_selection import KFold
+from tensorflow.keras import initializers
+from sklearn.metrics import mean_squared_error, mean_absolute_error,r2_score,accuracy_score
 from sklearn.pipeline import Pipeline
-from tensorflow.keras import Input
-from tensorflow.keras.layers import Embedding, Input, Add, Concatenate, concatenate
 from matplotlib.lines import Line2D
 from sklearn.preprocessing import MinMaxScaler,StandardScaler
-from tensorflow.keras.layers import Input, Flatten
-from tensorflow.python.keras.models import Sequential
-from tensorflow.keras.models import Sequential
-from tensorflow.python.keras.layers import Dense
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.models import Model
-from tensorflow.keras.layers import Conv2D,Conv1D
+from tensorflow.keras import Input
+from tensorflow.keras.layers import Embedding, Input, Add, Concatenate, concatenate
+from tensorflow.keras.models import Sequential,Model
+from tensorflow.keras.layers import Conv2D,Conv1D,Input, Flatten
 from tensorflow.keras.layers import MaxPool2D,MaxPooling1D
-from tensorflow.keras.layers import Flatten
-from tensorflow.keras.layers import Dropout
-from tensorflow.keras.layers import Dense
+from tensorflow.keras.layers import Flatten,Dropout,Dense
 from sklearn.ensemble import RandomForestRegressor
-import random
-import os
-import math
-import csv
-from datetime import datetime
-
-#from top2vec import Top2Vec
-from statistics import mean
-from scipy.stats import spearmanr
-from scipy.stats import shapiro
-import matplotlib.pyplot as plt
-from matplotlib.lines import Line2D
-import pandas as pd
-import pickle
-import numpy as np
-from sklearn import tree
-import seaborn as sns
-from sklearn.tree import plot_tree
-#matplotlib inline
-from sklearn.metrics import mean_absolute_error
-from sklearn.model_selection import train_test_split, GridSearchCV, KFold, cross_val_score
-from sklearn.metrics import accuracy_score
-from sklearn.preprocessing import StandardScaler, MinMaxScaler
-from matplotlib import rcParams
 import warnings
 from yellowbrick.regressor import ResidualsPlot
-
 warnings.filterwarnings("ignore")
-from scipy.stats import probplot
-import visualkeras
-from PIL import ImageFont
-import matplotlib.pyplot as plt
-import graphviz
-from visualkeras import layered_view
-import tensorflow as tf
-import pydot
-import ast
-import seaborn as sns
-import tensorflow as tf
-import glob
-import torch
-import torch.nn.functional as F
-from math import sqrt, exp, log, pi
-import re
-import pickle
-import random
-import pandas as pd
-import os
-from sklearn.feature_selection import SelectKBest
-from torch.utils.data import Dataset
-from sklearn import tree
-from sklearn.tree import plot_tree
-import gzip
-import matplotlib.pyplot as plt
-from scipy.stats import spearmanr
-from sklearn.model_selection import train_test_split
-from sklearn import metrics
-from sklearn.metrics import r2_score
-from tensorflow.keras import initializers
-from sklearn.metrics import mean_squared_error, mean_absolute_error,r2_score
-from sklearn.model_selection import KFold
-from sklearn.pipeline import Pipeline
-from tensorflow.keras import Input
-from tensorflow.keras.layers import Embedding, Input, Add, Concatenate, concatenate
-from matplotlib.lines import Line2D
-from sklearn.preprocessing import MinMaxScaler,StandardScaler
-from tensorflow.keras.layers import Input, Flatten
-from tensorflow.python.keras.models import Sequential
-from tensorflow.keras.models import Sequential
-from tensorflow.python.keras.layers import Dense
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.models import Model
-from tensorflow.keras.layers import Conv2D,Conv1D
-from tensorflow.keras.layers import MaxPool2D,MaxPooling2D
-from tensorflow.keras.layers import Flatten
-from tensorflow.keras.layers import Dropout
-from tensorflow.keras.layers import Dense
-from pandas.api.types import is_numeric_dtype
-from torch.utils.data import DataLoader, random_split###
-from numpy import loadtxt
-import matplotlib.pyplot as plt
-from scipy.stats import spearmanr
-from sklearn.model_selection import train_test_split
-from sklearn import metrics
-from sklearn.metrics import r2_score
-from tensorflow.keras import initializers
-from sklearn.metrics import mean_squared_error, mean_absolute_error,r2_score
-from sklearn.model_selection import KFold
-from sklearn.pipeline import Pipeline
-from matplotlib.lines import Line2D
-from sklearn.preprocessing import StandardScaler, MinMaxScaler
-from tensorflow.python.keras.models import Sequential
-from tensorflow.python.keras.layers import Dense
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Conv2D,Conv1D
-from tensorflow.keras.layers import MaxPool2D
-from tensorflow.keras.layers import Flatten
-from tensorflow.keras.layers import Dropout
-from tensorflow.keras.layers import Dense
-from sklearn.ensemble import RandomForestRegressor
 from collections import defaultdict
 
 # possible enhancements or additional features, this adds one more
@@ -178,7 +79,7 @@ height = float(fields[6])
 print('Time %s. Starting' % datetime.now())
 
 # read rfam family names
-with open('Rfam_to_standardized_name.txt','r') as f:
+with open('C:/Users/gbulb/Dropbox/dropbox/PhD GBulbul/Rfam_to_standardized_name.txt','r') as f:
     lines = f.readlines()
 
 rfam_to_standardized_name = defaultdict(str)
@@ -341,57 +242,52 @@ if enhance_with_layer_0_count:
 if enhance_with_one_hot_base:
     print('Added four dimensions for one-hot encoding of the base')
 
-print('There are %d predictors' % len(train_context[0]))
+#print('There are %d predictors' % len(train_context[0]))
 
 print('Training set has %5d data points' % len(train_context))
 print('Testing  set has %5d data points' % len(test_context))
 
 # use the data to train and test some models below
-
-
-X_train_context = 1.0*np.array(train_context)       # seems to help, replace integers with floats
-y_train = np.array(train_conservation)
-one_hot_train=np.array(train_one_hot_bases)
-X_test_context = np.array(test_context)       # seems to help, replace integers with floats
-y_test = np.array(test_conservation)
-one_hot_test=1.0*np.array(test_one_hot_bases)
-##################
-vec_train=one_hot_train
+#################X & Y preprocessing X:context, y:conservation score #################
+class preprocessing:
+      def pre_X_contexts(train_context,test_context):
+          X_train_context, X_test_context= 1.0*np.array(train_context), np.array(test_context)    
+          scaler = StandardScaler()
+          X_train = scaler.fit_transform(X_train_context)
+          X_test = scaler.transform(X_test_context)# seems to help, replace integers with floats
+          return X_train_context, X_test_context
+      def pre_Y_conservation(train_conservation,test_conservation):
+          y_train,y_test = np.array(train_conservation),np.array(test_conservation)
+          return y_train,y_test
+      def pre_one_hot(train_one_hot_bases,test_one_hot_bases):
+          one_hot_train,one_hot_test=np.array(train_one_hot_bases),1.0*np.array(test_one_hot_bases)
+          return one_hot_train,one_hot_test
+vec_train,vec_test=preprocessing.pre_one_hot(train_one_hot_bases,test_one_hot_bases)
 print('vec_train:', vec_train)
-vec_test=one_hot_test
-X_train=X_train_context
+X_train,X_test=preprocessing.pre_X_contexts(train_context,test_context)
 print('X_train:', X_train.shape[1])
-X_test=X_test_context
-scaler = StandardScaler()
-X_train = scaler.fit_transform(X_train)
-X_test = scaler.transform(X_test)
-sample_size = X_train.shape[0] # number of samples in train set
-input_steps  = X_train.shape[1] # number of features in train set
-input_dimension = 1           # each feature is represented by 1 number
-#input_shape = (sample_size,time_steps,input_dimension)
-#print('x.shape: ', X_train.shape)
-train_data_reshaped = X_train.reshape(sample_size,input_steps,input_dimension)
-print("After reshape train data set shape:\n", train_data_reshaped.shape)
-print("1 Sample shape:\n",train_data_reshaped[0].shape)
-print("An example sample:\n", train_data_reshaped[0])
+y_train,y_test=preprocessing.pre_Y_conservation(train_conservation,test_conservation)
+############################Reshaping input#######################################
+class reshaping:
+    def rehape_X_train(X_train):
+          
+          sample_size,input_steps,input_dimension = X_train.shape[0], X_train.shape[1] ,1 
+          #input_shape =(number of samples in train set,number of features in train set, each feature is represented by 1 number)
+          #input_shape = (sample_size,time_steps,input_dimension)
+          train_data_reshaped = X_train.reshape(sample_size,input_steps,input_dimension)
+          return train_data_reshaped
 
-
-activation1='relu'
-batch_size1=64
-initializer = tf.keras.initializers.GlorotNormal(seed=0)
-
-#no_of_unique_cat  = len(np.unique(one_hot))
-no_of_unique_cat  =4
-
-embedding_size=1
-n_timesteps = train_data_reshaped.shape[1] #13
-n_features  = train_data_reshaped.shape[2] #1 
-num_input = Input(shape=(n_timesteps,n_features))
-inp_cat_data = Input(shape=(no_of_unique_cat,))
-inp_num_data = Input(shape=(train_data_reshaped.shape[1],))
-inputs=[inp_cat_data, inp_num_data]
-emb = Embedding(input_dim=no_of_unique_cat, output_dim=embedding_size)(inp_cat_data)  
-
+    def arranging_input(embedding_size=1,no_of_unique_cat  =4): #no_of_unique_cat  = len(np.unique(one_hot))
+        train_data_reshaped=reshaping.rehape_X_train(X_train)
+        n_timesteps = train_data_reshaped.shape[1] #13
+        n_features  = train_data_reshaped.shape[2] #1 
+        num_input = Input(shape=(n_timesteps,n_features))
+        inp_cat_data = Input(shape=(no_of_unique_cat,))
+        inp_num_data = Input(shape=(train_data_reshaped.shape[1],))
+        inputs=[inp_cat_data, inp_num_data]
+        emb = Embedding(input_dim=no_of_unique_cat, output_dim=embedding_size)(inp_cat_data)  
+        return emb,inp_cat_data,num_input
+emb,inp_cat_data,num_input=reshaping.arranging_input(embedding_size=1,no_of_unique_cat  =4)
 flatten = Flatten()(emb)
 ###----3rd
 '''
@@ -418,40 +314,42 @@ y=Conv1D(filters=8, kernel_size=3, kernel_initializer=initializer, activation=ac
 y=Conv1D(filters=4, kernel_size=2, kernel_initializer=initializer, activation=activation1, name="Conv1D_5")(y)
 '''
 
+#################Modeling##################
+class Conv1D_model(Sequential):
+    def __init__(self, model_params):
+        super().__init__()
+        self.add(Input(model_params['num_input']))
+        self.add(Conv1D(filters=64, kernel_size=7, kernel_initializer=model_params['initializer'], activation=model_params['activation1'], name="Conv1D_1")),
+        self.add(Conv1D(filters=64, kernel_size=2, kernel_initializer=model_params['initializer'], activation=model_params['activation1'], name="Conv1D_3"))
+        self.add(MaxPooling1D(pool_size=2, name="MaxPooling1D-3")),
+        self.add(Conv1D(filters=8, kernel_size=3, kernel_initializer=model_params['initializer'], activation=model_params['activation1'], name="Conv1D_4")),
+        self.add(Conv1D(filters=4, kernel_size=2, kernel_initializer=model_params['initializer'], activation=model_params['activation1'], name="Conv1D_5")),
+        self.add(Flatten())
+        self.y=Flatten()
+        self.x=Flatten((model_params['emb']))
+        z= Concatenate()([self.x, self.y])
+        out = Dense(1)(z)
+        model = Model(inputs=model_params['inputs'], outputs=out)
+        return model
+        
 
-#------2nd
-
-y=Conv1D(filters=64, kernel_size=7, kernel_initializer=initializer, activation=activation1, name="Conv1D_1")(num_input)
-#y=MaxPooling1D(pool_size=2, name="MaxPooling1D-1")(y)
-#y=Conv1D(filters=32, kernel_size=3, kernel_initializer=initializer, activation=activation1, name="Conv1D_2")(y)
-#y=MaxPooling1D(pool_size=2, name="MaxPooling1D-2")(y)
-y=Conv1D(filters=64, kernel_size=2, kernel_initializer=initializer, activation=activation1, name="Conv1D_3")(y)
-y=MaxPooling1D(pool_size=2, name="MaxPooling1D-3")(y)
-y=Conv1D(filters=8, kernel_size=3, kernel_initializer=initializer, activation=activation1, name="Conv1D_4")(y)
-#y=MaxPooling1D(pool_size=2, name="MaxPooling1D-4")(y)
-y=Conv1D(filters=4, kernel_size=2, kernel_initializer=initializer, activation=activation1, name="Conv1D_5")(y)
-
-y=Flatten()(y)
-x=flatten = Flatten()(emb)
-
-z= Concatenate()([x, y])
-#z=Dense(680, activation=activation1, name="Dense_1")(z)
-#z=Dense(680, activation=activation1, name="Dense_2")(z)
-#z=Dense(680, activation=activation1, name="Dense_3")(z)
-#z=Dense(680, activation=activation1, name="Dense_4")(z)
-out = Dense(1)(z)
-model = Model(inputs=[inp_cat_data, num_input], outputs=out)
-##
-model.compile(loss='mean_squared_error',
-              optimizer='adam',
-              metrics=['acc','mae','mse'])
-
-model.summary()
-######
-history=model.fit([vec_train,X_train], y_train, epochs=10, batch_size=32)
-ypred = model.predict([vec_test,X_test])
+model_params={
+    'inputs':[inp_cat_data, num_input],
+    'num_input':num_input,
+    'emb':emb,
+'activation1':'relu',
+'batch_size1':64,
+'initializer' : GlorotNormal(seed=0)
+}
+model = Conv1D_model(model_params)
+class get_predictions_after_fitting:
+      def get_predictions(vec_train,X_train,y_train,vec_test,X_test):
+          history=model.fit([vec_train,X_train], y_train, epochs=10, batch_size=32)
+          ypred = model.predict([vec_test,X_test])
+          return ypred
 #plot_model(model, to_file='model_1dcnn_680_concat_3_conv_plus_cat_3_new_3_5.10_hidden_4.png',show_shapes=True, show_layer_names=True)
-y_pred=ypred
+################Model evaluation-Metrics#################
+y_pred=get_predictions_after_fitting.get_predictions(vec_train,X_train,y_train,vec_test,X_test)
 ###
 y_pred_list = [max(0.25,min(1.0,yp[0])) for yp in y_pred] 
 print('Mean response',sum(y_train)/len(y_train))
@@ -461,22 +359,20 @@ for i in range(0,10):
 print(min(y_pred_list),max(y_pred_list),len(y_pred_list),len(y_test))
 
 predictions=y_pred_list
-ypred=y_pred_list
-print("MAE: %.4f" % mean_absolute_error(y_test, ypred)) 
-print("MSE: %.4f" % mean_squared_error(y_test, ypred))
-print("r2: %.4f" % r2_score(y_test, ypred))
-#mae= mean_absolute_error(y_test, ypred)
-#mse=mean_squared_error(y_test, ypred)
-#r2= r2_score(y_test, ypred)
 
-predictions=ypred
-mse = np.mean((y_test - predictions)**2)
-print('mse', round(mse,4))
-r2 = r2_score(y_test, predictions)
-print('r2', round(r2,4))
-#print("avg_adjR2_0.10:",round(avg_adjR2,4))
-mae =mean_absolute_error(y_test, predictions)
-print('mae', round(mae,4))
+class get_metrics:
+      def MAE_(y_test,predictions):
+          return mean_absolute_error(y_test, predictions)
+      
+      def MSE_(y_test,predictions):
+          return mean_squared_error(y_test, predictions)
+      
+      def r2_score_(y_test,predictions):
+          return r2_score(y_test, predictions)
+print("MAE: %.4f" % get_metrics.MAE_(y_test,predictions)) 
+print("MSE: %.4f" % get_metrics.MSE_(y_test,predictions))
+print("r2: %.4f" % get_metrics.r2_score_(y_test,predictions))
+################Model evaluation-Plot diagnostics#################
 ypred=predictions
 list_of_i=[]
 list_of_j=[]
@@ -509,6 +405,7 @@ plt.legend(custom, ['above 0.3', 'below 0.3'], loc='lower right')
 
 #plt.axis('equal')
 plt.show()
+################Model evaluation-Detecting unusual observations#################
 ypred=predictions
 def discrepancy_ypred_ytest(ypred,ytest):
     return ypred-ytest
